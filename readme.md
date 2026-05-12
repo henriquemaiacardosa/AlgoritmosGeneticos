@@ -14,8 +14,10 @@ Certifique-se de ter o [Python](https://www.python.org/) instalado em sua máqui
 
 ### 2. Instalação das dependências
 Abra o terminal na pasta raiz do projeto e instale o Flask e a biblioteca de permissões de origem cruzada (CORS):
+
 ```bash
 pip install flask flask-cors
+```
 
 <img src="./print.png" alt="Print da Tela" style="max-width: 100%;">
-<img src="./print2.png" alt="Print da Tela" style="max-width: 100%;">
+<img src="./print2.png" alt="Print da Tela 2" style="max-width: 100%;">
