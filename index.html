@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knapsack Problem - Algoritmo Genético</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f9; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #333; }
+        .grid { display: flex; gap: 20px; }
+        .col { flex: 1; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        .config-box { background: #e9ecef; padding: 15px; border-radius: 5px; }
+        .config-box label { display: block; margin-top: 10px; font-weight: bold; }
+        .config-box input { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        button { background: #28a745; color: white; border: none; padding: 10px 20px; margin-top: 15px; cursor: pointer; font-size: 16px; border-radius: 4px; width: 100%; }
+        button:hover { background: #218838; }
+        .results { background: #d4edda; padding: 15px; border-radius: 5px; margin-top: 20px; border: 1px solid #c3e6cb; }
+        canvas { background: white; margin-top: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Algoritmo Genético - Problema da Mochila (Max: 30kg)</h1>
+        
+        <div class="grid">
+            <div class="col">
+                <h2>Itens Disponíveis</h2>
+                <table>
+                    <tr><th>Item</th><th>Peso (kg)</th><th>Pontos</th></tr>
+                    <tr><td>Saco de dormir</td><td>15</td><td>15</td></tr>
+                    <tr><td>Corda</td><td>3</td><td>7</td></tr>
+                    <tr><td>Canivete</td><td>2</td><td>10</td></tr>
+                    <tr><td>Tocha</td><td>5</td><td>5</td></tr>
+                    <tr><td>Garrafa</td><td>9</td><td>8</td></tr>
+                    <tr><td>Comida</td><td>20</td><td>17</td></tr>
+                </table>
+            </div>
+
+            <div class="col">
+                <div class="config-box">
+                    <h2>Configurações do Algoritmo</h2>
+                    <label>Tamanho da População</label>
+                    <input type="number" id="popSize" value="50">
+                    
+                    <label>Número de Gerações</label>
+                    <input type="number" id="generations" value="100">
+                    
+                    <label>Taxa de Mutação (0.0 a 1.0)</label>
+                    <input type="number" step="0.01" id="mutationRate" value="0.05">
+                    
+                    <button onclick="runAlgorithm()">Iniciar Evolução</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultsBox" class="results" style="display: none;">
+            <h2>Resultados Encontrados</h2>
+            <p><strong>Melhor Cromossomo:</strong> <span id="resChrom"></span></p>
+            <p><strong>Peso Total:</strong> <span id="resWeight"></span> kg</p>
+            <p><strong>Pontuação Total:</strong> <span id="resPoints"></span> pontos</p>
+            <p><strong>Itens Selecionados:</strong> <span id="resItems"></span></p>
+        </div>
+
+        <canvas id="evolutionChart" height="100"></canvas>
+    </div>
+
+    <script>
+        let chartInstance = null;
+
+        async function runAlgorithm() {
+            const popSize = document.getElementById('popSize').value;
+            const generations = document.getElementById('generations').value;
+            const mutationRate = document.getElementById('mutationRate').value;
+
+            // Faz a requisição ao Backend
+            const response = await fetch('http://localhost:5000/api/executar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    pop_size: popSize,
+                    generations: generations,
+                    mutation_rate: mutationRate
+                })
+            });
+
+            const data = await response.json();
+
+            // Atualiza tela de resultados
+            document.getElementById('resultsBox').style.display = 'block';
+            document.getElementById('resChrom').innerText = data.cromossomo;
+            document.getElementById('resWeight').innerText = data.peso_total;
+            document.getElementById('resPoints').innerText = data.pontuacao_total;
+            document.getElementById('resItems').innerText = data.itens.join(', ');
+
+            // Plota o gráfico
+            plotChart(data.evolucao);
+        }
+
+        function plotChart(evolutionData) {
+            const ctx = document.getElementById('evolutionChart').getContext('2d');
+            const labels = Array.from({length: evolutionData.length}, (_, i) => `Geração ${i+1}`);
+
+            if(chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Evolução do Fitness (Pontos)',
+                        data: evolutionData,
+                        borderColor: '#007bff',
+                        backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                        fill: true,
+                        tension: 0.1
+                    }]
+                },
+                options: { scales: { y: { beginAtZero: true } } }
+            });
+        }
+    </script>
+</body>
+</html>
