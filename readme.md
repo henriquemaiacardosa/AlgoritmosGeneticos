@@ -19,5 +19,5 @@ Abra o terminal na pasta raiz do projeto e instale o Flask e a biblioteca de per
 pip install flask flask-cors
 ```
 
-<img src="./print.png" alt="Print da Tela" style="max-width: 100%;">
-<img src="./print2.png" alt="Print da Tela 2" style="max-width: 100%;">
+<img src="img/print.png" alt="Print da Tela" style="max-width: 100%;">
+<img src="img/print2.png" alt="Print da Tela 2" style="max-width: 100%;">
